@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
-from rest_framework import status
+from rest_framework import mixins, status
 from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -301,7 +301,7 @@ class PasswordChangeView(GenericAPIView):
         return Response({'detail': _('New password has been saved.')})
 
 
-class EmailListView(ListAPIView):
+class EmailView(mixins.ListModelMixin, GenericAPIView):
     serializer_class = EmailAddressSerializer
     permission_classes = (IsAuthenticated,)
     throttle_scope = 'dj_rest_auth'
@@ -309,3 +309,6 @@ class EmailListView(ListAPIView):
 
     def get_queryset(self):
         return EmailAddress.objects.filter(user=self.request.user)
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
