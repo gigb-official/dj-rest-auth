@@ -1,10 +1,8 @@
 from django.conf import settings
 from django.urls import path
 
-from dj_rest_auth.views import (
-    EmailView, LoginView, LogoutView, PasswordChangeView, PasswordResetConfirmView,
-    PasswordResetView, UserDetailsView,
-)
+from dj_rest_auth.views import (EmailCreateView, EmailDestroyView, EmailListView, EmailSetPrimaryView, EmailVerifyView, LoginView,
+                                LogoutView, PasswordChangeView, PasswordResetConfirmView, PasswordResetView, UserDetailsView)
 
 urlpatterns = [
     # URLs that do not require a session or valid token
@@ -15,7 +13,11 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='rest_logout'),
     path('user/', UserDetailsView.as_view(), name='rest_user_details'),
     path('password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
-    path('email/', EmailView.as_view(), name='rest_email_list')
+    path('email/', EmailListView.as_view(), name='rest_email_list'),
+    path('email/<int:pk>/', EmailDestroyView.as_view(), name='rest_email_destroy'),
+    path('email/<int:pk>/verify/', EmailVerifyView.as_view(), name='rest_email_verify'),
+    path('email/<int:pk>/primary/', EmailSetPrimaryView.as_view(), name='rest_email_primary'),
+    path('email/create/', EmailCreateView.as_view(), name='rest_email_create'),
 ]
 
 if getattr(settings, 'REST_USE_JWT', False):

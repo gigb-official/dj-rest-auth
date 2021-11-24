@@ -6,8 +6,8 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
-from rest_framework import mixins, status
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from rest_framework import status
+from rest_framework.generics import CreateAPIView, DestroyAPIView, GenericAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -301,24 +301,83 @@ class PasswordChangeView(GenericAPIView):
         return Response({'detail': _('New password has been saved.')})
 
 
-class EmailView(mixins.ListModelMixin, GenericAPIView):
+class EmailCreateView(CreateAPIView):
+    serializer_class = EmailPostSerializer
+    permission_classes = (IsAuthenticated,)
+    throttle_scope = 'dj_rest_auth'
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response({'detail': _('New email has been saved.')})
+
+
+class EmailDestroyView(DestroyAPIView):
+    serializer_class = EmailAddressSerializer
+    permission_classes = (IsAuthenticated,)
+    throttle_scope = 'dj_rest_auth'
+
+    def get_queryset(self):
+        return EmailAddress.objects.filter(user=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        email_address = self.get_object()
+        if email_address.primary:
+            return Response({'detail': 'Cannot remove primary email'}, 400)
+        return self.destroy(request, *args, **kwargs)
+
+
+class EmailVerifyView(APIView):
+    """
+    Send verify email to selected email address
+
+    Accepts/Returns nothing.
+    """
+    permission_classes = (IsAuthenticated,)
+    throttle_scope = 'dj_rest_auth'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            email_address = EmailAddress.objects.filter(user=request.user).get(pk=kwargs.get('pk'))
+            if email_address.verified:
+                return Response({'detail': 'Email already verified'}, 400)
+            email_address.send_confirmation(request)
+        except EmailAddress.DoesNotExist:
+            return Response({'detail': 'Email does not exist'}, 404)
+        return Response({'detail': 'Verification email sent'}, 200)
+
+
+class EmailSetPrimaryView(APIView):
+    """
+    Send verify email to selected email address
+
+    Accepts/Returns nothing.
+    """
+    permission_classes = (IsAuthenticated,)
+    throttle_scope = 'dj_rest_auth'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            email_address = EmailAddress.objects.get(user=request.user, pk=kwargs.get('pk'))
+        except EmailAddress.DoesNotExist:
+            return Response({'detail': 'Email does not exist'}, 404)
+
+        if not email_address.verified:
+            return Response({'detail': 'You have to verify email to make it primary!'}, 400)
+
+        email_address.set_as_primary()
+        return Response({'detail': 'Email set as primary'}, 200)
+
+
+class EmailListView(ListAPIView):
+    """
+    Returns current user emails list
+    """
     serializer_class = EmailAddressSerializer
     permission_classes = (IsAuthenticated,)
     throttle_scope = 'dj_rest_auth'
     pagination_class = None
 
-    def dispatch(self, *args, **kwargs):
-        return super().dispatch(*args, **kwargs)
-
     def get_queryset(self):
         return EmailAddress.objects.filter(user=self.request.user)
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        self.serializer_class = EmailPostSerializer
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response({'detail': _('New email has been saved.')})
