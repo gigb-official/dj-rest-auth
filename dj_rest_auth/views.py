@@ -331,8 +331,6 @@ class EmailDestroyView(DestroyAPIView):
 class EmailVerifyView(APIView):
     """
     Send verify email to selected email address
-
-    Accepts/Returns nothing.
     """
     permission_classes = (IsAuthenticated,)
     throttle_scope = 'dj_rest_auth'
@@ -350,9 +348,7 @@ class EmailVerifyView(APIView):
 
 class EmailSetPrimaryView(APIView):
     """
-    Send verify email to selected email address
-
-    Accepts/Returns nothing.
+    Set selected email address as primary
     """
     permission_classes = (IsAuthenticated,)
     throttle_scope = 'dj_rest_auth'
