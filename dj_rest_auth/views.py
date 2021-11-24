@@ -305,6 +305,7 @@ class EmailListView(ListAPIView):
     serializer_class = EmailAddressSerializer
     permission_classes = (IsAuthenticated,)
     throttle_scope = 'dj_rest_auth'
+    pagination_class = None
 
     def get_queryset(self):
         return EmailAddress.objects.filter(user=self.request.user)
