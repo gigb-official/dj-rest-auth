@@ -1,3 +1,4 @@
+from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import SetPasswordForm, PasswordResetForm
@@ -359,3 +360,14 @@ class PasswordChangeSerializer(serializers.Serializer):
         if not self.logout_on_password_change:
             from django.contrib.auth import update_session_auth_hash
             update_session_auth_hash(self.request, self.user)
+
+
+class EmailAddressSerializer(serializers.ModelSerializer):
+    """
+    Email Serializer from AllAuth
+    """
+
+    class Meta:
+        extra_fields = []
+        model = EmailAddress
+        fields = ('pk', 'email', 'verified', 'primary')

@@ -1,14 +1,13 @@
+from allauth.account.models import EmailAddress
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from django.contrib.auth import login as django_login
-from django.contrib.auth import logout as django_logout
+from django.contrib.auth import get_user_model, login as django_login, logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 from rest_framework import status
-from rest_framework.generics import GenericAPIView, RetrieveUpdateAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -20,8 +19,8 @@ from .app_settings import (
     create_token,
 )
 from .models import get_token_model
+from .serializers import EmailAddressSerializer
 from .utils import jwt_encode
-
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters(
@@ -91,8 +90,8 @@ class LoginView(GenericAPIView):
             return_expiration_times = getattr(settings, 'JWT_AUTH_RETURN_EXPIRATION', False)
 
             data = {
-                'user': self.user,
-                'access_token': self.access_token,
+                'user':          self.user,
+                'access_token':  self.access_token,
                 'refresh_token': self.refresh_token,
             }
 
@@ -181,7 +180,7 @@ class LogoutView(APIView):
                     token.blacklist()
                 except KeyError:
                     response.data = {'detail': _('Refresh token was not included in request data.')}
-                    response.status_code =status.HTTP_401_UNAUTHORIZED
+                    response.status_code = status.HTTP_401_UNAUTHORIZED
                 except (TokenError, AttributeError, TypeError) as error:
                     if hasattr(error, 'args'):
                         if 'Token is blacklisted' in error.args or 'Token is invalid or expired' in error.args:
@@ -300,3 +299,12 @@ class PasswordChangeView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response({'detail': _('New password has been saved.')})
+
+
+class EmailListView(ListAPIView):
+    serializer_class = EmailAddressSerializer
+    permission_classes = (IsAuthenticated,)
+    throttle_scope = 'dj_rest_auth'
+
+    def get_queryset(self):
+        return EmailAddress.objects.filter(user=self.request.user)

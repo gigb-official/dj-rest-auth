@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import path
 
 from dj_rest_auth.views import (
-    LoginView, LogoutView, PasswordChangeView, PasswordResetConfirmView,
+    EmailListView, LoginView, LogoutView, PasswordChangeView, PasswordResetConfirmView,
     PasswordResetView, UserDetailsView,
 )
 
@@ -16,6 +16,7 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='rest_logout'),
     path('user/', UserDetailsView.as_view(), name='rest_user_details'),
     path('password/change/', PasswordChangeView.as_view(), name='rest_password_change'),
+    path('email/', EmailListView.as_view(), name='rest_email_list')
 ]
 
 if getattr(settings, 'REST_USE_JWT', False):
