@@ -1,7 +1,8 @@
+from allauth.account.forms import AddEmailForm
 from allauth.account.models import EmailAddress
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model
-from django.contrib.auth.forms import SetPasswordForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.urls import exceptions as url_exceptions
 from django.utils.encoding import force_str
 from django.utils.module_loading import import_string
@@ -250,9 +251,9 @@ class PasswordResetSerializer(serializers.Serializer):
         request = self.context.get('request')
         # Set some values to trigger the send_email method.
         opts = {
-            'use_https': request.is_secure(),
-            'from_email': getattr(settings, 'DEFAULT_FROM_EMAIL'),
-            'request': request,
+            'use_https':       request.is_secure(),
+            'from_email':      getattr(settings, 'DEFAULT_FROM_EMAIL'),
+            'request':         request,
             'token_generator': default_token_generator,
         }
 
@@ -371,3 +372,26 @@ class EmailAddressSerializer(serializers.ModelSerializer):
         extra_fields = []
         model = EmailAddress
         fields = ('pk', 'email', 'verified', 'primary')
+
+
+class EmailPostSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=128)
+
+    add_email_form_class = AddEmailForm
+    add_email_form = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.request = self.context.get('request')
+        self.user = getattr(self.request, 'user', None)
+
+    def validate(self, attrs):
+        self.add_email_form = self.add_email_form_class(user=self.user, data=attrs)
+
+        if not self.add_email_form.is_valid():
+            raise serializers.ValidationError(self.add_email_form.errors)
+        return attrs
+
+    def save(self):
+        self.add_email_form.save(self.request)
