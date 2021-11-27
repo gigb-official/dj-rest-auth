@@ -310,7 +310,7 @@ class EmailCreateView(CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response({'detail': _('New email has been saved.')})
+        return Response(serializer.data, 201)
 
 
 class EmailDestroyView(DestroyAPIView):
