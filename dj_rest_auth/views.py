@@ -302,15 +302,15 @@ class PasswordChangeView(GenericAPIView):
 
 
 class EmailCreateView(CreateAPIView):
-    serializer_class = EmailPostSerializer
+    serializer_class = EmailAddressSerializer
     permission_classes = (IsAuthenticated,)
     throttle_scope = 'dj_rest_auth'
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, 201)
+        after_save = self.get_serializer(serializer.save())
+        return Response(after_save.data, 201)
 
 
 class EmailDestroyView(DestroyAPIView):

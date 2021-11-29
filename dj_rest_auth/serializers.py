@@ -368,15 +368,6 @@ class EmailAddressSerializer(serializers.ModelSerializer):
     Email Serializer from AllAuth
     """
 
-    class Meta:
-        extra_fields = []
-        model = EmailAddress
-        fields = ('pk', 'email', 'verified', 'primary')
-
-
-class EmailPostSerializer(serializers.Serializer):
-    email = serializers.EmailField(max_length=128)
-
     add_email_form_class = AddEmailForm
     add_email_form = None
 
@@ -394,4 +385,14 @@ class EmailPostSerializer(serializers.Serializer):
         return attrs
 
     def save(self):
-        self.add_email_form.save(self.request)
+        return self.add_email_form.save(self.request)
+
+    class Meta:
+        extra_fields = []
+        model = EmailAddress
+        fields = ('pk', 'email', 'verified', 'primary')
+        extra_kwargs = {
+            "pk":       {"read_only": True},
+            "verified": {"read_only": True},
+            "primary":  {"read_only": True},
+        }
