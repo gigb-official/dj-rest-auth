@@ -19,7 +19,7 @@ from .app_settings import (
     create_token,
 )
 from .models import get_token_model
-from .serializers import EmailAddressSerializer, EmailPostSerializer
+from .serializers import EmailAddressSerializer
 from .utils import jwt_encode
 
 sensitive_post_parameters_m = method_decorator(
