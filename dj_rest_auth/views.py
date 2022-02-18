@@ -1,4 +1,5 @@
 from allauth.account.models import EmailAddress
+from allauth.account.views import ConfirmEmailView
 from django.conf import settings
 from django.contrib.auth import get_user_model, login as django_login, logout as django_logout
 from django.core.exceptions import ObjectDoesNotExist
@@ -6,13 +7,11 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
-from allauth.account.views import ConfirmEmailView
-
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, DestroyAPIView, GenericAPIView, ListAPIView, RetrieveUpdateAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.views import APIView
 
 from .app_settings import (
@@ -355,9 +354,11 @@ class CheckVerificationEmailView(APIView, ConfirmEmailView):
 
     def get(self, request, *args, **kwargs):
         confirmation = self.get_object()
-        print(confirmation)
         if confirmation:
-            return Response({'detail': _('ok')}, status=HTTP_200_OK)
+            if confirmation.email_address.verified:
+                return Response({'detail': 'Email already verified'}, status=HTTP_400_BAD_REQUEST)
+            return Response({'email': confirmation.email_address.email, 'user': confirmation.email_address.user.username},
+                            status=HTTP_200_OK)
         return Response({'detail': 'Not found'}, status=HTTP_404_NOT_FOUND)
 
 
