@@ -2,7 +2,7 @@ from django.conf import settings
 from django.urls import path
 
 from dj_rest_auth.views import (EmailCreateView, EmailDestroyView, EmailListView, EmailSetPrimaryView, EmailVerifyView, LoginView,
-                                LogoutView, PasswordChangeView, PasswordResetConfirmView, PasswordResetView, UserDetailsView)
+                                LogoutView, PasswordChangeView, PasswordResetConfirmView, PasswordResetView, UserDetailsView, CheckVerificationEmailView)
 
 urlpatterns = [
     # URLs that do not require a session or valid token
@@ -16,7 +16,7 @@ urlpatterns = [
     path('email/', EmailListView.as_view(), name='rest_email_list'),
     path('email/<int:pk>/', EmailDestroyView.as_view(), name='rest_email_destroy'),
     path('email/<int:pk>/verify/', EmailVerifyView.as_view(), name='rest_email_verify'),
-    path('email/<str:key>/check-verification/', CheckVerificationEmail.as_view(), name="rest_email_check_verification"),
+    path('email/<str:key>/check-verification/', CheckVerificationEmailView.as_view(), name="rest_email_check_verification"),
     path('email/<int:pk>/primary/', EmailSetPrimaryView.as_view(), name='rest_email_primary'),
     path('email/create/', EmailCreateView.as_view(), name='rest_email_create'),
 ]

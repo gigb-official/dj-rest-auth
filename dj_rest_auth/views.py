@@ -348,7 +348,7 @@ class EmailVerifyView(APIView):
         return Response({'detail': 'Verification email sent'}, 200)
 
 
-class CheckVerificationEmail(APIView, ConfirmEmailView):
+class CheckVerificationEmailView(APIView, ConfirmEmailView):
     permission_classes = (AllowAny,)
     allowed_methods = ('GET')
 
