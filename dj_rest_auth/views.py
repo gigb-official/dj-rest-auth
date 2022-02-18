@@ -350,7 +350,7 @@ class EmailVerifyView(APIView):
 
 class CheckVerificationEmailView(APIView, ConfirmEmailView):
     permission_classes = (AllowAny,)
-    allowed_methods = ('GET')
+    allowed_methods = ('GET',)
 
     def get(self, request, *args, **kwargs):
         confirmation = self.get_object()
