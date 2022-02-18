@@ -346,6 +346,18 @@ class EmailVerifyView(APIView):
         return Response({'detail': 'Verification email sent'}, 200)
 
 
+class CheckVerificationEmail(APIView, ConfirmEmailView):
+    permission_classes = (AllowAny,)
+    allowed_methods = ('GET')
+
+    def get(self, request, *args, **kwargs):
+        confirmation = self.get_object()
+        print(confirmation)
+        if confirmation:
+            return Response({'detail': _('ok')}, status=HTTP_200_OK)
+        return Response({'detail': 'Not found'}, status=HTTP_404_NOT_FOUND)
+
+
 class EmailSetPrimaryView(APIView):
     """
     Set selected email address as primary
