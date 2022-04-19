@@ -20,7 +20,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from dj_rest_auth.app_settings import (
-    JWTSerializer, TokenSerializer, create_token,
+    JWTSerializer, TokenSerializer, create_token, BASE_HOST
 )
 from dj_rest_auth.models import TokenModel
 from dj_rest_auth.registration.serializers import (
@@ -31,7 +31,6 @@ from dj_rest_auth.utils import jwt_encode
 from dj_rest_auth.views import LoginView
 
 from .app_settings import RegisterSerializer, register_permission_classes
-from ..app_settings import BASE_HOST
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters('password1', 'password2'),
