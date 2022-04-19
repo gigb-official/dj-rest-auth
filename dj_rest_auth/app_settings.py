@@ -54,3 +54,5 @@ PasswordChangeSerializer = import_callable(
 
 JWT_AUTH_COOKIE = getattr(settings, 'JWT_AUTH_COOKIE', None)
 JWT_AUTH_REFRESH_COOKIE = getattr(settings, 'JWT_AUTH_REFRESH_COOKIE', None)
+
+BASE_HOST = getattr(settings, 'BASE_HOST', None)

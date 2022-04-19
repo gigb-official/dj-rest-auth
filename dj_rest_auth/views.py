@@ -14,11 +14,15 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from rest_framework.views import APIView
 
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+
 from .app_settings import (
     JWTSerializer, JWTSerializerWithExpiration, LoginSerializer,
     PasswordChangeSerializer, PasswordResetConfirmSerializer,
     PasswordResetSerializer, TokenSerializer, UserDetailsSerializer,
-    create_token,
+    create_token, BASE_HOST
 )
 from .models import get_token_model
 from .serializers import EmailAddressSerializer
@@ -30,6 +34,12 @@ sensitive_post_parameters_m = method_decorator(
     ),
 )
 
+
+class GoogleLoginView(SocialLoginView):
+        adapter_class = GoogleOAuth2Adapter
+        callback_url = BASE_HOST + "/api/auth/google/callback/"
+        client_class = OAuth2Client
+          
 
 class LoginView(GenericAPIView):
     """
