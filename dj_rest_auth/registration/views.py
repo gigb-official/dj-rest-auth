@@ -6,6 +6,8 @@ from allauth.account.models import EmailAddress
 from allauth.socialaccount import signals
 from allauth.socialaccount.adapter import get_adapter as get_social_adapter
 from allauth.socialaccount.models import SocialAccount
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
@@ -29,7 +31,7 @@ from dj_rest_auth.utils import jwt_encode
 from dj_rest_auth.views import LoginView
 
 from .app_settings import RegisterSerializer, register_permission_classes
-
+from ..app_settings import BASE_HOST
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters('password1', 'password2'),
@@ -215,3 +217,9 @@ class SocialAccountDisconnectView(GenericAPIView):
         )
 
         return Response(self.get_serializer(account).data)
+
+
+class GoogleLoginView(SocialLoginView):
+        adapter_class = GoogleOAuth2Adapter
+        callback_url = BASE_HOST + "/api/auth/google/callback/"
+        client_class = OAuth2Client

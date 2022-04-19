@@ -14,15 +14,16 @@ from dj_rest_auth.views import (
     PasswordResetView, 
     UserDetailsView, 
     CheckVerificationEmailView,
-    GoogleLoginView
     )
+from dj_rest_auth.registration.views import GoogleLoginView
+
 
 urlpatterns = [
     # URLs that do not require a session or valid token
     path('password/reset/', PasswordResetView.as_view(), name='rest_password_reset'),
     path('password/reset/confirm/', PasswordResetConfirmView.as_view(), name='rest_password_reset_confirm'),
-    path('google/login/', GoogleLoginView.as_view(), name='rest_google_login'),
     path('login/', LoginView.as_view(), name='rest_login'), 
+    path('google/login/', GoogleLoginView.as_view(), name='rest_google_login'), 
     # URLs that require a user to be logged in with a valid session / token.
     path('logout/', LogoutView.as_view(), name='rest_logout'),
     path('user/', UserDetailsView.as_view(), name='rest_user_details'),
