@@ -5,14 +5,12 @@ from .views import (
     RegisterView, 
     VerifyEmailView, 
     ResendEmailVerificationView,
-    GoogleLoginView
 )
 
 urlpatterns = [
     path('', RegisterView.as_view(), name='rest_register'),
     path('verify-email/', VerifyEmailView.as_view(), name='rest_verify_email'),
     path('resend-email/', ResendEmailVerificationView.as_view(), name="rest_resend_email"),
-    path('google/login/', GoogleLoginView.as_view(), name='rest_google_login'), 
     # This url is used by django-allauth and empty TemplateView is
     # defined just to allow reverse() call inside app, for example when email
     # with verification link is being sent, then it's required to render email
