@@ -111,6 +111,7 @@ class SocialLoginSerializer(serializers.Serializer):
             
             refresh_token = attrs.get("refresh_token")
             if refresh_token:
+                print('refresh_token: ', refresh_token)
                 tokens_to_parse["refresh_token"] = refresh_token
 
             # If expires in is provided
@@ -145,7 +146,7 @@ class SocialLoginSerializer(serializers.Serializer):
             token = client.get_access_token(code)
             access_token = token['access_token']
             tokens_to_parse = {'access_token': access_token}
-
+            print('acces token: ', access_token)
             # If available we add additional data to the dictionary
             for key in ['refresh_token', 'id_token', adapter.expires_in_key]:
                 if key in token:
