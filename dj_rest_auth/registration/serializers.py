@@ -39,7 +39,9 @@ class SocialLoginSerializer(serializers.Serializer):
     access_token = serializers.CharField(required=False, allow_blank=True)
     code = serializers.CharField(required=False, allow_blank=True)
     id_token = serializers.CharField(required=False, allow_blank=True)
-
+    refresh_token = serializers.CharField(required=False, allow_blank=True)
+    expires_in = serializers.IntegerField(required=False, default=0)
+    
     def _get_request(self):
         request = self.context.get('request')
         if not isinstance(request, HttpRequest):
@@ -103,8 +105,18 @@ class SocialLoginSerializer(serializers.Serializer):
             token = access_token
             # For sign in with apple
             id_token = attrs.get('id_token')
+            
             if id_token:
                 tokens_to_parse['id_token'] = id_token
+            
+            refresh_token = attrs.get("refresh_token")
+            if refresh_token:
+                tokens_to_parse["refresh_token"] = refresh_token
+
+            # If expires in is provided
+            expires_in = attrs.get("expires_in")
+            if expires_in:
+                tokens_to_parse["expires_in"] = expires_in
 
         # Case 2: We received the authorization code
         elif code:
@@ -162,6 +174,7 @@ class SocialLoginSerializer(serializers.Serializer):
                 account_exists = get_user_model().objects.filter(
                     email=login.user.email,
                 ).exists()
+                
                 if account_exists:
                     raise serializers.ValidationError(
                         _('User is already registered with this e-mail address.'),
